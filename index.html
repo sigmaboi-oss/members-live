@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<body style="margin:0; background:#1a1a1a; color:white; font-family:'Segoe UI', sans-serif;">
+
+<div style="padding:12px; font-weight:900; font-size:13px; letter-spacing:2px; text-transform:uppercase; color:#ffae00; border-bottom:2px solid #ff4d00; text-shadow:0 0 10px #ff4d00;">
+🔥 Club Members
+</div>
+
+<div id="members" style="max-height:280px; overflow-y:auto; padding:10px; border-radius:12px; background: rgba(255,60,0,0.05); border:1px solid rgba(255,60,0,0.2); box-shadow:0 0 20px rgba(255,60,0,0.1) inset;">
+Loading members...
+</div>
+
+<script>
+const clubSlug = "group-a162138be57d83c3500191b84a4b325d";
+
+fetch(`https://api.chess.com/pub/club/${clubSlug}/members`)
+.then(r => r.json())
+.then(d => {
+    let html = "";
+
+    // combine all 3 categories
+    const allMembers = [
+        ...(d.weekly || []),
+        ...(d.monthly || []),
+        ...(d.all_time || [])
+    ];
+
+    // remove duplicates
+    const seen = new Set();
+    const uniqueMembers = allMembers.filter(u => {
+        if (seen.has(u.username)) return false;
+        seen.add(u.username);
+        return true;
+    });
+
+    // display first 50 members (you can increase if needed)
+    uniqueMembers.slice(0, 50).forEach(u => {
+        html += `
+        <div style="padding:6px; border-bottom:1px solid rgba(255,60,0,0.2); color:#cfcfcf; transition:0.2s;"
+             onmouseover="this.style.color='#ffae00';this.style.textShadow='0 0 6px #ff6a00';"
+             onmouseout="this.style.color='#cfcfcf';this.style.textShadow='none';">
+            <a href="https://www.chess.com/member/${u.username}" target="_blank" style="color:inherit; text-decoration:none;">${u.username}</a>
+        </div>`;
+    });
+
+    document.getElementById("members").innerHTML = html;
+})
+.catch(() => {
+    document.getElementById("members").innerHTML = "<div style='color:red;'>❌ Failed to load members</div>";
+});
+</script>
+
+</body>
+</html>
